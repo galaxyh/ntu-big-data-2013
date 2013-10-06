@@ -31,7 +31,7 @@ public class WordCount {
 		jobConf.setInputFormat(TextInputFormat.class);
 		jobConf.setOutputFormat(TextOutputFormat.class);
 
-		// Specify input and output
+		// Specify input and output directories
 		FileInputFormat.setInputPaths(jobConf, new Path(args[0]));
 		FileOutputFormat.setOutputPath(jobConf, new Path(args[1]));
 
