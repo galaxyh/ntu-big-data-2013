@@ -16,6 +16,10 @@ public class WordCount {
 		JobClient client = new JobClient();
 		JobConf jobConf = new JobConf(WordCount.class);
 
+		// Specify configuration files
+		jobConf.addResource(new Path("/opt/hadoop-1.1.2/conf/core-site.xml"));
+		jobConf.addResource(new Path("/opt/hadoop-1.1.2/conf/hdfs-site.xml"));
+
 		// Specify job name
 		jobConf.setJobName("Word count");
 
@@ -36,7 +40,7 @@ public class WordCount {
 		FileOutputFormat.setOutputPath(jobConf, new Path(args[1]));
 
 		client.setConf(jobConf);
-		
+
 		try {
 			JobClient.runJob(jobConf);
 		} catch (Exception e) {
