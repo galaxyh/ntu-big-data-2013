@@ -3,7 +3,6 @@ package com.yullage.bigdata2013;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -23,7 +22,8 @@ public class PageRankReducer extends MapReduceBase implements
 		while (values.hasNext()) {
 			String line = values.next().toString();
 
-			// If a line starts with OUT_LINK_FLAG, it represents the original out
+			// If a line starts with OUT_LINK_FLAG, it represents the original
+			// out
 			// links of the page.
 			if (line.startsWith(PageRank.OUT_LINK_FLAG)) {
 				outLinks = line.substring(2);
