@@ -1,5 +1,8 @@
 package com.yullage.bigdata2013;
 
+import java.io.IOException;
+
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -36,8 +39,21 @@ public class WordSort {
 		jobConf.setOutputFormat(TextOutputFormat.class);
 
 		// Specify input and output directories
-		FileInputFormat.setInputPaths(jobConf, new Path(args[0]));
-		FileOutputFormat.setOutputPath(jobConf, new Path(args[1]));
+		Path inputPath = new Path(args[0]);
+		Path outputPath = new Path(args[1]);
+
+		FileInputFormat.setInputPaths(jobConf, inputPath);
+		FileOutputFormat.setOutputPath(jobConf, outputPath);
+
+		// Remove existing output directory
+		try {
+			FileSystem hdfs = outputPath.getFileSystem(jobConf);
+			if (hdfs.exists(outputPath)) {
+				hdfs.delete(outputPath, true);
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 		client.setConf(jobConf);
 
