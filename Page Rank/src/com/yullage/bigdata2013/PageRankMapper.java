@@ -37,7 +37,6 @@ public class PageRankMapper extends MapReduceBase implements
 		}
 
 		// Output the original out links starting with OUT_LINK_FLAG.
-		System.out.println(tokens[0] + " " + PageRank.OUT_LINK_FLAG + outLinks);
 		output.collect(new Text(tokens[0]), new Text(PageRank.OUT_LINK_FLAG
 				+ outLinks));
 	}
