@@ -11,7 +11,7 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
 /**
- * A integer sort reducer implementation.
+ * An integer sort reducer implementation.
  * 
  * @author Steven Huang
  * @version 1.0b

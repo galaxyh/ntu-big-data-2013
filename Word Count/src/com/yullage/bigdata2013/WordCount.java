@@ -13,6 +13,13 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
+/**
+ * A word count implementation.
+ * 
+ * @author Steven Huang
+ * @version 1.0b
+ * 
+ */
 public class WordCount {
 
 	public static void main(String[] args) {

@@ -11,6 +11,13 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * A word sort mapper implementation.
+ * 
+ * @author Steven Huang
+ * @version 1.0b
+ * 
+ */
 public class WordSortMapper extends MapReduceBase implements
 		Mapper<LongWritable, Text, Text, IntWritable> {
 	private final static IntWritable one = new IntWritable(1);

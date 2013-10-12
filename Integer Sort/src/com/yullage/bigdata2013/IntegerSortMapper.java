@@ -12,7 +12,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 /**
- * A integer sort mapper implementation.
+ * An integer sort mapper implementation.
  * 
  * @author Steven Huang
  * @version 1.0b

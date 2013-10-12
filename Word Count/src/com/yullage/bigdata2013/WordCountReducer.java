@@ -10,6 +10,13 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * A word count reducer implementation.
+ * 
+ * @author Steven Huang
+ * @version 1.0b
+ * 
+ */
 public class WordCountReducer extends MapReduceBase implements
 		Reducer<Text, IntWritable, Text, IntWritable> {
 	@Override

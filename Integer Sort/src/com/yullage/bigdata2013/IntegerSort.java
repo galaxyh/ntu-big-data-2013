@@ -14,7 +14,7 @@ import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
 /**
- * A integer sort implementation.
+ * An integer sort implementation.
  * 
  * @author Steven Huang
  * @version 1.0b
