@@ -9,6 +9,13 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * A page rank reducer implementation.
+ * 
+ * @author Steven Huang
+ * @version 1.0b
+ * 
+ */
 public class PageRankReducer extends MapReduceBase implements
 		Reducer<Text, Text, Text, Text> {
 
@@ -17,7 +24,7 @@ public class PageRankReducer extends MapReduceBase implements
 			OutputCollector<Text, Text> output, Reporter reporter)
 			throws IOException {
 		String outLinks = "";
-		float newRank = 0;
+		double newRank = 0;
 
 		while (values.hasNext()) {
 			String line = values.next().toString();
@@ -31,13 +38,13 @@ public class PageRankReducer extends MapReduceBase implements
 			}
 
 			String[] tokens = line.split("\\s+");
-			float rankFromOtherPage = Float.parseFloat(tokens[0])
-					/ Float.parseFloat(tokens[1]);
+			double rankFromOtherPage = Double.parseDouble(tokens[0])
+					/ Double.parseDouble(tokens[1]);
 			newRank += rankFromOtherPage;
 		}
 
 		newRank = (1 - PageRank.DAMPING) + PageRank.DAMPING * newRank;
-		Text v = new Text(Float.toString(newRank) + "\t" + outLinks);
+		Text v = new Text(Double.toString(newRank) + "\t" + outLinks);
 		output.collect(key, v);
 	}
 
