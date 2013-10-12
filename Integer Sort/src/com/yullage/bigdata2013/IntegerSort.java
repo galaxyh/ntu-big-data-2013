@@ -27,8 +27,8 @@ public class IntegerSort {
 		JobConf jobConf = new JobConf(IntegerSort.class);
 
 		// Specify configuration files.
-		jobConf.addResource(new Path("/opt/hadoop-1.1.2/conf/core-site.xml"));
-		jobConf.addResource(new Path("/opt/hadoop-1.1.2/conf/hdfs-site.xml"));
+		// jobConf.addResource(new Path("/opt/hadoop-1.1.2/conf/core-site.xml"));
+		// jobConf.addResource(new Path("/opt/hadoop-1.1.2/conf/hdfs-site.xml"));
 
 		// Specify job name.
 		jobConf.setJobName("Integer sort");
