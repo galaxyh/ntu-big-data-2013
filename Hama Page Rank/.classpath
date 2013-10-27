@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/opt/hadoop-1.1.2/hadoop-ant-1.1.2.jar" sourcepath="/opt/hadoop-1.1.2/src/ant">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/opt/hadoop-1.1.2/docs/api"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/opt/hadoop-1.1.2/hadoop-client-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/opt/hadoop-1.1.2/hadoop-core-1.1.2.jar" sourcepath="/opt/hadoop-1.1.2/src/core">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/opt/hadoop-1.1.2/docs/api"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/opt/hadoop-1.1.2/hadoop-minicluster-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/opt/hadoop-1.1.2/hadoop-test-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/opt/hadoop-1.1.2/hadoop-tools-1.1.2.jar" sourcepath="/opt/hadoop-1.1.2/src/tools">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/opt/hadoop-1.1.2/docs/api"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/opt/hama-0.6.3/hama-core-0.6.3.jar"/>
+	<classpathentry kind="lib" path="/opt/hama-0.6.3/hama-graph-0.6.3.jar"/>
+	<classpathentry kind="lib" path="/opt/hama-0.6.3/hama-ml-0.6.3.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
