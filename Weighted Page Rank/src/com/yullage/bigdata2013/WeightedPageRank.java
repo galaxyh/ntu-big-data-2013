@@ -28,74 +28,7 @@ import org.apache.hama.graph.VertexInputReader;
  */
 public class WeightedPageRank {
 
-	public static class PageRankVertex extends
-			Vertex<Text, NullWritable, DoubleWritable> {
-
-		static double DAMPING_FACTOR = 0.85;
-		static double MAXIMUM_CONVERGENCE_ERROR = 0.001;
-
-		@Override
-		public void setup(Configuration conf) {
-			String val = conf.get("hama.pagerank.alpha");
-			if (val != null) {
-				DAMPING_FACTOR = Double.parseDouble(val);
-			}
-			val = conf.get("hama.graph.max.convergence.error");
-			if (val != null) {
-				MAXIMUM_CONVERGENCE_ERROR = Double.parseDouble(val);
-			}
-		}
-
-		@Override
-		public void compute(Iterable<DoubleWritable> messages)
-				throws IOException {
-			// initialize this vertex to 1 / count of global vertices in this
-			// graph
-			if (this.getSuperstepCount() == 0) {
-				this.setValue(new DoubleWritable(1.0 / this.getNumVertices()));
-			} else if (this.getSuperstepCount() >= 1) {
-				double sum = 0;
-				for (DoubleWritable msg : messages) {
-					sum += msg.get();
-				}
-				double alpha = (1.0d - DAMPING_FACTOR) / this.getNumVertices();
-				this.setValue(new DoubleWritable(alpha + (sum * DAMPING_FACTOR)));
-			}
-
-			// if we have not reached our global error yet, then proceed.
-			DoubleWritable globalError = getLastAggregatedValue(0);
-			if (globalError != null && this.getSuperstepCount() > 2
-					&& MAXIMUM_CONVERGENCE_ERROR > globalError.get()) {
-				voteToHalt();
-				return;
-			}
-
-			// in each superstep we are going to send a new rank to our
-			// neighbours
-			sendMessageToNeighbors(new DoubleWritable(this.getValue().get()
-					/ this.getEdges().size()));
-		}
-
-	}
-
-	public static class PagerankSeqReader
-			extends
-			VertexInputReader<Text, TextArrayWritable, Text, NullWritable, DoubleWritable> {
-		@Override
-		public boolean parseVertex(Text key, TextArrayWritable value,
-				Vertex<Text, NullWritable, DoubleWritable> vertex)
-				throws Exception {
-			vertex.setVertexID(key);
-
-			for (Writable v : value.get()) {
-				vertex.addEdge(new Edge<Text, NullWritable>((Text) v, null));
-			}
-
-			return true;
-		}
-	}
-
-	public static GraphJob createJob(String[] args, HamaConfiguration conf)
+	private static GraphJob createJob(String[] args, HamaConfiguration conf)
 			throws IOException {
 		GraphJob pageJob = new GraphJob(conf, WeightedPageRank.class);
 		pageJob.setJobName("Pagerank");
@@ -120,7 +53,7 @@ public class WeightedPageRank {
 		pageJob.setAggregatorClass(AverageAggregator.class);
 
 		// Vertex reader
-		pageJob.setVertexInputReaderClass(PagerankSeqReader.class);
+		pageJob.setVertexInputReaderClass(PageRankSeqReader.class);
 
 		pageJob.setVertexIDClass(Text.class);
 		pageJob.setVertexValueClass(DoubleWritable.class);
