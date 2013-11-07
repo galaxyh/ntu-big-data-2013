@@ -7,25 +7,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hama.HamaConfiguration;
 import org.apache.hama.bsp.HashPartitioner;
 import org.apache.hama.bsp.SequenceFileInputFormat;
-import org.apache.hama.bsp.TextArrayWritable;
 import org.apache.hama.bsp.TextOutputFormat;
 import org.apache.hama.graph.AverageAggregator;
-import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.GraphJob;
-import org.apache.hama.graph.Vertex;
-import org.apache.hama.graph.VertexInputReader;
 
-/**
- * A weighted page rank implementation with Hama.
- * 
- * @author Steven Huang
- * @version 1.0b
- * 
- */
 public class WeightedPageRank {
 
 	private static GraphJob createJob(String[] args, HamaConfiguration conf)
