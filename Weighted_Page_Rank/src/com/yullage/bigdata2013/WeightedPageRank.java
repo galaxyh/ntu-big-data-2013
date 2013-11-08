@@ -9,7 +9,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hama.HamaConfiguration;
 import org.apache.hama.bsp.HashPartitioner;
-import org.apache.hama.bsp.SequenceFileInputFormat;
+import org.apache.hama.bsp.TextInputFormat;
 import org.apache.hama.bsp.TextOutputFormat;
 import org.apache.hama.graph.AverageAggregator;
 import org.apache.hama.graph.GraphJob;
@@ -47,7 +47,7 @@ public class WeightedPageRank {
 		pageJob.setVertexValueClass(DoubleWritable.class);
 		pageJob.setEdgeValueClass(NullWritable.class);
 
-		pageJob.setInputFormat(SequenceFileInputFormat.class);
+		pageJob.setInputFormat(TextInputFormat.class);
 
 		pageJob.setPartitioner(HashPartitioner.class);
 		pageJob.setOutputFormat(TextOutputFormat.class);

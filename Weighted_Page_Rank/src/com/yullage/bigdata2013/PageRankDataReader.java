@@ -1,6 +1,7 @@
 package com.yullage.bigdata2013;
 
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -11,16 +12,25 @@ import org.apache.hama.graph.VertexInputReader;
 
 public class PageRankDataReader
 		extends
-		VertexInputReader<Text, TextArrayWritable, Text, NullWritable, DoubleWritable> {
+		VertexInputReader<LongWritable, Text, Text, NullWritable, DoubleWritable> {
 	@Override
-	public boolean parseVertex(Text key, TextArrayWritable value,
+	public boolean parseVertex(LongWritable key, Text value,
 			Vertex<Text, NullWritable, DoubleWritable> vertex) throws Exception {
-		vertex.setVertexID(key);
+		System.out.println(value.toString());
+		String line = value.toString();
+		String[] tokens = line.split("\\s+");
+		int tokenCount = tokens.length;
 
-		System.out.println(value);
-		for (Writable v : value.get()) {
-			vertex.addEdge(new Edge<Text, NullWritable>((Text) v, null));
+		// Skip invalid lines and pages without any out link.
+		if (tokenCount <= 2) {
+			return false;
 		}
+
+		vertex.setVertexID(new Text("a"));
+
+		// for (Writable v : value.get()) {
+		// vertex.addEdge(new Edge<Text, NullWritable>((Text) v, null));
+		// }
 
 		return true;
 	}
