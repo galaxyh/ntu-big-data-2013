@@ -18,39 +18,39 @@ public class WeightedPageRank {
 
 	private static GraphJob createJob(String[] args, HamaConfiguration conf)
 			throws IOException {
-		GraphJob pageJob = new GraphJob(conf, WeightedPageRank.class);
-		pageJob.setJobName("Weighted page rank");
+		GraphJob graphJob = new GraphJob(conf, WeightedPageRank.class);
+		graphJob.setJobName("Weighted page rank");
 
-		pageJob.setVertexClass(PageRankVertex.class);
-		pageJob.setMaxIteration(Integer.parseInt(args[0]));
-		pageJob.setInputPath(new Path(args[1]));
-		pageJob.setOutputPath(new Path(args[2]));
+		graphJob.setVertexClass(PageRankVertex.class);
+		graphJob.setMaxIteration(Integer.parseInt(args[0]));
+		graphJob.setInputPath(new Path(args[1]));
+		graphJob.setOutputPath(new Path(args[2]));
 
 		// set the defaults
-		pageJob.set("hama.pagerank.alpha", "0.85");
+		graphJob.set("hama.pagerank.alpha", "0.85");
 		// reference vertices to itself, because we don't have a dangling node
 		// contribution here
-		pageJob.set("hama.graph.self.ref", "true");
-		pageJob.set("hama.graph.max.convergence.error", "0.001");
+		graphJob.set("hama.graph.self.ref", "true");
+		graphJob.set("hama.graph.max.convergence.error", "0.001");
 
 		// error
-		pageJob.setAggregatorClass(AverageAggregator.class);
+		graphJob.setAggregatorClass(AverageAggregator.class);
 
 		// Vertex reader
-		pageJob.setVertexInputReaderClass(PageRankDataReader.class);
+		graphJob.setVertexInputReaderClass(PageRankDataReader.class);
 
-		pageJob.setVertexIDClass(Text.class);
-		pageJob.setVertexValueClass(DoubleWritable.class);
-		pageJob.setEdgeValueClass(NullWritable.class);
+		graphJob.setVertexIDClass(Text.class);
+		graphJob.setVertexValueClass(DoubleWritable.class);
+		graphJob.setEdgeValueClass(NullWritable.class);
 
-		pageJob.setInputFormat(TextInputFormat.class);
+		graphJob.setInputFormat(TextInputFormat.class);
 
-		pageJob.setPartitioner(HashPartitioner.class);
-		pageJob.setOutputFormat(TextOutputFormat.class);
-		pageJob.setOutputKeyClass(Text.class);
-		pageJob.setOutputValueClass(DoubleWritable.class);
+		graphJob.setPartitioner(HashPartitioner.class);
+		graphJob.setOutputFormat(TextOutputFormat.class);
+		graphJob.setOutputKeyClass(Text.class);
+		graphJob.setOutputValueClass(DoubleWritable.class);
 
-		return pageJob;
+		return graphJob;
 	}
 
 	private static void printUsage() {
@@ -65,10 +65,10 @@ public class WeightedPageRank {
 		}
 
 		HamaConfiguration conf = new HamaConfiguration(new Configuration());
-		GraphJob pageJob = createJob(args, conf);
+		GraphJob graphJob = createJob(args, conf);
 
 		long startTime = System.currentTimeMillis();
-		if (pageJob.waitForCompletion(true)) {
+		if (graphJob.waitForCompletion(true)) {
 			System.out.println("Job Finished in "
 					+ (System.currentTimeMillis() - startTime) / 1000.0
 					+ " seconds");
