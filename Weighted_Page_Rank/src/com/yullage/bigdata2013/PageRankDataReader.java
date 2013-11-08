@@ -17,20 +17,28 @@ public class PageRankDataReader
 	public boolean parseVertex(LongWritable key, Text value,
 			Vertex<Text, NullWritable, DoubleWritable> vertex) throws Exception {
 		System.out.println(value.toString());
-		String line = value.toString();
-		String[] tokens = line.split("\\s+");
-		int tokenCount = tokens.length;
+		System.out.println("==============================");
 
-		// Skip invalid lines and pages without any out link.
-		if (tokenCount <= 2) {
-			return false;
+		String sourceData = value.toString();
+		String[] lines = sourceData.split("[\\r\\n]+");
+
+		for (String line : lines) {
+			System.out.println(line);
+			
+			String[] tokens = line.split("\\s+");
+			int tokenCount = tokens.length;
+
+			// Skip invalid lines and pages without any out link.
+			if (tokenCount < 2) {
+				continue;
+			}
+
+			vertex.setVertexID(new Text(tokens[0]));
+			for (int i = 1; i < tokenCount; i++) {
+				vertex.addEdge(new Edge<Text, NullWritable>(
+						new Text(tokens[i]), null));
+			}
 		}
-
-		vertex.setVertexID(new Text("a"));
-
-		// for (Writable v : value.get()) {
-		// vertex.addEdge(new Edge<Text, NullWritable>((Text) v, null));
-		// }
 
 		return true;
 	}
