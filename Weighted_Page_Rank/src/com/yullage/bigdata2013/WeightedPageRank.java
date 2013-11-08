@@ -19,23 +19,19 @@ public class WeightedPageRank {
 	private static GraphJob createJob(String[] args, HamaConfiguration conf)
 			throws IOException {
 		GraphJob pageJob = new GraphJob(conf, WeightedPageRank.class);
-		pageJob.setJobName("Pagerank");
+		pageJob.setJobName("Weighted page rank");
 
 		pageJob.setVertexClass(PageRankVertex.class);
-		pageJob.setInputPath(new Path(args[0]));
-		pageJob.setOutputPath(new Path(args[1]));
+		pageJob.setMaxIteration(Integer.parseInt(args[0]));
+		pageJob.setInputPath(new Path(args[1]));
+		pageJob.setOutputPath(new Path(args[2]));
 
 		// set the defaults
-		pageJob.setMaxIteration(30);
 		pageJob.set("hama.pagerank.alpha", "0.85");
 		// reference vertices to itself, because we don't have a dangling node
 		// contribution here
 		pageJob.set("hama.graph.self.ref", "true");
 		pageJob.set("hama.graph.max.convergence.error", "0.001");
-
-		if (args.length == 3) {
-			pageJob.setNumBspTask(Integer.parseInt(args[2]));
-		}
 
 		// error
 		pageJob.setAggregatorClass(AverageAggregator.class);
@@ -53,18 +49,20 @@ public class WeightedPageRank {
 		pageJob.setOutputFormat(TextOutputFormat.class);
 		pageJob.setOutputKeyClass(Text.class);
 		pageJob.setOutputValueClass(DoubleWritable.class);
+
 		return pageJob;
 	}
 
 	private static void printUsage() {
-		System.out.println("Usage: <input> <output> [tasks]");
+		System.out.println("Usage: <iterations> <input> <output>");
 		System.exit(-1);
 	}
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException, ClassNotFoundException {
-		if (args.length < 2)
+		if (args.length < 3) {
 			printUsage();
+		}
 
 		HamaConfiguration conf = new HamaConfiguration(new Configuration());
 		GraphJob pageJob = createJob(args, conf);
