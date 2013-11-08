@@ -9,7 +9,7 @@ import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.Vertex;
 import org.apache.hama.graph.VertexInputReader;
 
-public class PageRankSeqReader
+public class PageRankDataReader
 		extends
 		VertexInputReader<Text, TextArrayWritable, Text, NullWritable, DoubleWritable> {
 	@Override

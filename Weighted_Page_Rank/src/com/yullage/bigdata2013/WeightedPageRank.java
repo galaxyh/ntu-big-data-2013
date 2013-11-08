@@ -41,7 +41,7 @@ public class WeightedPageRank {
 		pageJob.setAggregatorClass(AverageAggregator.class);
 
 		// Vertex reader
-		pageJob.setVertexInputReaderClass(PageRankSeqReader.class);
+		pageJob.setVertexInputReaderClass(PageRankDataReader.class);
 
 		pageJob.setVertexIDClass(Text.class);
 		pageJob.setVertexValueClass(DoubleWritable.class);
