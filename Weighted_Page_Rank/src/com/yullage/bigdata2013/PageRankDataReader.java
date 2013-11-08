@@ -19,25 +19,20 @@ public class PageRankDataReader
 		System.out.println(value.toString());
 		System.out.println("==============================");
 
-		String sourceData = value.toString();
-		String[] lines = sourceData.split("[\\r\\n]+");
+		String line = value.toString();
+		String[] tokens = line.split("\\s+");
+		int tokenCount = tokens.length;
 
-		for (String line : lines) {
-			System.out.println(line);
-			
-			String[] tokens = line.split("\\s+");
-			int tokenCount = tokens.length;
+		// Skip invalid lines and pages without any out link.
+		if (tokenCount < 2) {
+			return false;
+		}
 
-			// Skip invalid lines and pages without any out link.
-			if (tokenCount < 2) {
-				continue;
-			}
-
-			vertex.setVertexID(new Text(tokens[0]));
-			for (int i = 1; i < tokenCount; i++) {
-				vertex.addEdge(new Edge<Text, NullWritable>(
-						new Text(tokens[i]), null));
-			}
+		vertex.setVertexID(new Text(tokens[0]));
+		for (int i = 1; i < tokenCount; i++) {
+			System.out.println(tokens[i]);
+			vertex.addEdge(new Edge<Text, NullWritable>(new Text(tokens[i]),
+					null));
 		}
 
 		return true;
