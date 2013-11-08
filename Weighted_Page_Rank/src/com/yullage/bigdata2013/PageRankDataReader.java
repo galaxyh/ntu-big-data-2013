@@ -17,6 +17,7 @@ public class PageRankDataReader
 			Vertex<Text, NullWritable, DoubleWritable> vertex) throws Exception {
 		vertex.setVertexID(key);
 
+		System.out.println(value);
 		for (Writable v : value.get()) {
 			vertex.addEdge(new Edge<Text, NullWritable>((Text) v, null));
 		}
