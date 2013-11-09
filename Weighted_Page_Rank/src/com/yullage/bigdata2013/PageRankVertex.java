@@ -43,7 +43,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, MapWritable> {
 			this.getValue().put(new Text("Rank"), new DoubleWritable(alpha + (sum * DAMPING_FACTOR)));
 		}
 
-		if (this.getSuperstepCount() >= this.getMaxIteration() + SETUP_STEPS) {
+		if (this.getSuperstepCount() < this.getMaxIteration() + SETUP_STEPS) {
 			// Send a new rank to neighbors.
 			Double outRank = Double.parseDouble(this.getValue().get("RANK").toString()) / this.getEdges().size();
 			MapWritable messageContent = new MapWritable();
