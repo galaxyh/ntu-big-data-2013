@@ -11,7 +11,6 @@ import org.apache.hama.HamaConfiguration;
 import org.apache.hama.bsp.HashPartitioner;
 import org.apache.hama.bsp.TextInputFormat;
 import org.apache.hama.bsp.TextOutputFormat;
-import org.apache.hama.graph.AverageAggregator;
 import org.apache.hama.graph.GraphJob;
 
 public class WeightedPageRank {
@@ -22,7 +21,7 @@ public class WeightedPageRank {
 		graphJob.setJobName("Weighted page rank");
 
 		graphJob.setVertexClass(PageRankVertex.class);
-		graphJob.setMaxIteration(Integer.parseInt(args[0]));
+		//graphJob.setMaxIteration(Integer.parseInt(args[0]));
 		graphJob.setInputPath(new Path(args[1]));
 		graphJob.setOutputPath(new Path(args[2]));
 
@@ -31,10 +30,6 @@ public class WeightedPageRank {
 		// reference vertices to itself, because we don't have a dangling node
 		// contribution here
 		graphJob.set("hama.graph.self.ref", "true");
-		graphJob.set("hama.graph.max.convergence.error", "0.001");
-
-		// error
-		graphJob.setAggregatorClass(AverageAggregator.class);
 
 		// Vertex reader
 		graphJob.setVertexInputReaderClass(PageRankDataReader.class);
