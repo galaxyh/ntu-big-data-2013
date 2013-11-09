@@ -13,6 +13,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, MapWritable> {
 
 	static double DAMPING_FACTOR = 0.85;
 	private static int SETUP_STEPS = 2;
+	private static Text KEY_RANK = new Text("RANK");
 
 	@Override
 	public void setup(Configuration conf) {
@@ -30,24 +31,24 @@ public class PageRankVertex extends Vertex<Text, NullWritable, MapWritable> {
 		// graph
 		if (this.getSuperstepCount() == 0) {
 			MapWritable vertexValue = new MapWritable();
-			vertexValue.put(new Text("Rank"), new DoubleWritable(1.0 / this.getNumVertices()));
+			vertexValue.put(KEY_RANK, new DoubleWritable(1.0 / this.getNumVertices()));
 			this.setValue(vertexValue);
 		} else if (this.getSuperstepCount() >= 1) {
 			double sum = 0;
 			for (MapWritable msg : messages) {
-				DoubleWritable rank = (DoubleWritable) msg.get("RANK");
+				DoubleWritable rank = (DoubleWritable) msg.get(KEY_RANK);
 				sum += Double.parseDouble(rank.toString());
 			}
 
 			double alpha = (1.0d - DAMPING_FACTOR) / this.getNumVertices();
-			this.getValue().put(new Text("Rank"), new DoubleWritable(alpha + (sum * DAMPING_FACTOR)));
+			this.getValue().put(KEY_RANK, new DoubleWritable(alpha + (sum * DAMPING_FACTOR)));
 		}
 
 		if (this.getSuperstepCount() < this.getMaxIteration() + SETUP_STEPS) {
 			// Send a new rank to neighbors.
-			Double outRank = Double.parseDouble(this.getValue().get("RANK").toString()) / this.getEdges().size();
+			Double outRank = Double.parseDouble(this.getValue().get(KEY_RANK).toString()) / this.getEdges().size();
 			MapWritable messageContent = new MapWritable();
-			messageContent.put(new Text("Rank"), new Text(outRank.toString()));
+			messageContent.put(KEY_RANK, new Text(outRank.toString()));
 			sendMessageToNeighbors(messageContent);
 		} else {
 			this.voteToHalt();
