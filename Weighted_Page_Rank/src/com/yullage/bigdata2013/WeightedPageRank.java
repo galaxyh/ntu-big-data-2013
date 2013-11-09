@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hama.HamaConfiguration;
@@ -15,8 +16,7 @@ import org.apache.hama.graph.GraphJob;
 
 public class WeightedPageRank {
 
-	private static GraphJob createJob(String[] args, HamaConfiguration conf)
-			throws IOException {
+	private static GraphJob createJob(String[] args, HamaConfiguration conf) throws IOException {
 		GraphJob graphJob = new GraphJob(conf, WeightedPageRank.class);
 		graphJob.setJobName("Weighted page rank");
 
@@ -25,11 +25,8 @@ public class WeightedPageRank {
 		graphJob.setOutputPath(new Path(args[2]));
 
 		// set the defaults
-		graphJob.set("hama.pagerank.maxSuperstep", args[0]);
+		graphJob.setMaxIteration(Integer.parseInt(args[0]));
 		graphJob.set("hama.pagerank.alpha", "0.85");
-		// reference vertices to itself, because we don't have a dangling node
-		// contribution here
-		graphJob.set("hama.graph.self.ref", "true");
 
 		// Vertex reader
 		graphJob.setVertexInputReaderClass(PageRankDataReader.class);
@@ -39,6 +36,8 @@ public class WeightedPageRank {
 		graphJob.setEdgeValueClass(NullWritable.class);
 
 		graphJob.setInputFormat(TextInputFormat.class);
+		graphJob.setInputKeyClass(LongWritable.class);
+		graphJob.setInputValueClass(Text.class);
 
 		graphJob.setPartitioner(HashPartitioner.class);
 		graphJob.setOutputFormat(TextOutputFormat.class);
@@ -53,8 +52,7 @@ public class WeightedPageRank {
 		System.exit(-1);
 	}
 
-	public static void main(String[] args) throws IOException,
-			InterruptedException, ClassNotFoundException {
+	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 		if (args.length < 3) {
 			printUsage();
 		}
@@ -64,9 +62,7 @@ public class WeightedPageRank {
 
 		long startTime = System.currentTimeMillis();
 		if (graphJob.waitForCompletion(true)) {
-			System.out.println("Job Finished in "
-					+ (System.currentTimeMillis() - startTime) / 1000.0
-					+ " seconds");
+			System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 		}
 	}
 }

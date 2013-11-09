@@ -1,19 +1,18 @@
 package com.yullage.bigdata2013;
 
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.Vertex;
 import org.apache.hama.graph.VertexInputReader;
 
-public class PageRankDataReader
-		extends
-		VertexInputReader<LongWritable, Text, Text, NullWritable, DoubleWritable> {
+public class PageRankDataReader extends VertexInputReader<LongWritable, Text, Text, NullWritable, MapWritable> {
+
 	@Override
-	public boolean parseVertex(LongWritable key, Text value,
-			Vertex<Text, NullWritable, DoubleWritable> vertex) throws Exception {
+	public boolean parseVertex(LongWritable key, Text value, Vertex<Text, NullWritable, MapWritable> vertex)
+	        throws Exception {
 		String line = value.toString();
 		String[] tokens = line.split("\\s+");
 		int tokenCount = tokens.length;
@@ -26,10 +25,10 @@ public class PageRankDataReader
 		// Set vertex and edges
 		vertex.setVertexID(new Text(tokens[0]));
 		for (int i = 1; i < tokenCount; i++) {
-			vertex.addEdge(new Edge<Text, NullWritable>(new Text(tokens[i]),
-					null));
+			vertex.addEdge(new Edge<Text, NullWritable>(new Text(tokens[i]), null));
 		}
 
 		return true;
 	}
+
 }
