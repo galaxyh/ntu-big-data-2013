@@ -21,12 +21,11 @@ public class WeightedPageRank {
 		graphJob.setJobName("Weighted page rank");
 
 		graphJob.setVertexClass(PageRankVertex.class);
-		graphJob.setMaxIteration(Integer.parseInt(args[0]));
 		graphJob.setInputPath(new Path(args[1]));
 		graphJob.setOutputPath(new Path(args[2]));
 
 		// set the defaults
-		//graphJob.set(hama., value);
+		graphJob.set("hama.pagerank.maxSuperstep", args[0]);
 		graphJob.set("hama.pagerank.alpha", "0.85");
 		// reference vertices to itself, because we don't have a dangling node
 		// contribution here
