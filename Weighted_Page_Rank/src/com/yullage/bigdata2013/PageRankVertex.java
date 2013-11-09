@@ -39,8 +39,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, DoubleWritable> {
 		}
 
 		if (this.getSuperstepCount() == 5) {
-			this.voteToHalt();
-			return;
+			//this.voteToHalt();
+			//return;
 		}
 		
 		// in each superstep we are going to send a new rank to our
