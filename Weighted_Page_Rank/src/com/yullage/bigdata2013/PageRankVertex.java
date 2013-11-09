@@ -25,7 +25,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, MapWritable> {
 
 	@Override
 	public void compute(Iterable<MapWritable> messages) throws IOException {
-		System.out.println("Vertex " + this.getVertexID() + " Superstep =" + this.getSuperstepCount());
+		System.out.println("Vertex = " + this.getVertexID() + " Superstep = " + this.getSuperstepCount());
+		System.out.println("Rank = " + this.getValue().get(KEY_RANK).toString());
 
 		// initialize this vertex to 1 / count of global vertices in this
 		// graph
@@ -36,7 +37,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, MapWritable> {
 		} else if (this.getSuperstepCount() >= 1) {
 			double sum = 0;
 			for (MapWritable msg : messages) {
-				DoubleWritable rank = (DoubleWritable) msg.get(KEY_RANK);
+				DoubleWritable rank = new DoubleWritable(Double.parseDouble(msg.get(KEY_RANK).toString()));
 				sum += Double.parseDouble(rank.toString());
 			}
 
