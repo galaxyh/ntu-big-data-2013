@@ -92,7 +92,11 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 
 		PageRankWritable msg = new PageRankWritable();
 		msg.setSenderId(getVertexID());
-		sendMessageToNeighbors(msg);
+
+		for (Edge<Text, NullWritable> edge : this.getEdges()) {
+			sendMessage(edge, msg);
+		}
+		// sendMessageToNeighbors(msg);
 	}
 
 	/**
