@@ -34,7 +34,9 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 */
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
-		System.out.println("Vertex = " + this.getVertexID() + " Superstep = " + this.getSuperstepCount());
+		if (getSuperstepCount() <= 3) {
+			System.out.println("Vertex = " + this.getVertexID() + " Superstep = " + this.getSuperstepCount());
+		}
 
 		if (this.getSuperstepCount() == 0) {
 			// initialize this vertex to 1/count of global vertices in this graph.
@@ -81,8 +83,10 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 * @throws IOException
 	 */
 	private void broadcastVertexId() throws IOException {
+		System.out.println("broadcast: " + getVertexID().toString());
+
 		PageRankWritable msg = new PageRankWritable();
-		msg.setSenderId(this.getVertexID());
+		msg.setSenderId(getVertexID());
 		sendMessageToNeighbors(msg);
 	}
 
@@ -104,6 +108,9 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		msg.setSenderId(getVertexID());
 		msg.setInEdgeCount(vertexIdList.size());
 		msg.setOutEdgeCount(getEdges().size());
+
+		System.out.println("Id = " + getVertexID() + " In EC = " + vertexIdList.size() + " Out EC = "
+		        + getEdges().size());
 
 		for (Text id : vertexIdList) {
 			sendMessage(id, msg);
