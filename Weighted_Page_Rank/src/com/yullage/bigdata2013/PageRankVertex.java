@@ -36,7 +36,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
 		if (getSuperstepCount() <= 3) {
-			System.out.println("Vertex = " + this.getVertexID() + " Superstep = " + this.getSuperstepCount());
+			System.out.println("Vertex = " + getVertexID() + " Superstep = " + getSuperstepCount());
 		}
 
 		if (this.getSuperstepCount() == 0) {
@@ -48,17 +48,17 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 			// Broadcast this vertex ID for neighbors to calculate in and out edge counts.
 			broadcastVertexId();
 
-		} else if (this.getSuperstepCount() == 1) {
+		} else if (getSuperstepCount() == 1) {
 			// Calculate in and out edge counts. Then send these information back to senders.
 			sendInOutEdgeCounts(messages);
-		} else if (this.getSuperstepCount() == 2) {
+		} else if (getSuperstepCount() == 2) {
 			// Calculate weight for each neighbor.
 			calculateWeight(messages);
 
 			// Just continue to next super step.
 			return;
 
-		} else if (this.getSuperstepCount() >= 3) {
+		} else if (getSuperstepCount() >= SETUP_STEPS) {
 			double sum = 0;
 			for (PageRankWritable msg : messages) {
 				sum += msg.getRank().get();
@@ -70,11 +70,13 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 
 		System.out.println("Rank = " + this.getValue().getRank().toString());
 
-		if (this.getSuperstepCount() < this.getMaxIteration() + SETUP_STEPS) {
-			sendNewRank();
-		} else {
-			this.voteToHalt();
-			return;
+		if (getSuperstepCount() > SETUP_STEPS) {
+			if (getSuperstepCount() < getMaxIteration() + SETUP_STEPS) {
+				sendNewRank();
+			} else {
+				voteToHalt();
+				return;
+			}
 		}
 	}
 
@@ -84,13 +86,9 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 * @throws IOException
 	 */
 	private void broadcastVertexId() throws IOException {
-		System.out.println("broadcast: " + getVertexID().toString());
-
-		System.out.println("senderId:" + getVertexID());
-
 		PageRankWritable msg = new PageRankWritable();
 		msg.setSenderId(getVertexID());
-		//sendMessageToNeighbors(msg);
+		sendMessageToNeighbors(msg);
 	}
 
 	/**
@@ -103,7 +101,6 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		// Receive vertex IDs from all sender.
 		List<Text> vertexIdList = new ArrayList<Text>();
 		for (PageRankWritable msg : messages) {
-			System.out.println("Id = " + getVertexID() + " Sender = " + msg.getSenderId());
 			vertexIdList.add(msg.getSenderId());
 		}
 
