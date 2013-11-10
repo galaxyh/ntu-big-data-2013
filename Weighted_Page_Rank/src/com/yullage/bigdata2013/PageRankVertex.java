@@ -16,7 +16,7 @@ import org.apache.hama.graph.Vertex;
 public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable> {
 
 	public static double DAMPING_FACTOR = 0.85;
-	private static int SETUP_STEPS = 3;
+	public static int SETUP_STEPS = 3;
 
 	/*
 	 * (non-Javadoc)
@@ -57,7 +57,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 			calculateWeight(messages);
 			return;
 
-		} else if (getSuperstepCount() >= SETUP_STEPS) {
+		} else if (getSuperstepCount() >= 3) {
 			double sum = 0;
 			for (PageRankWritable msg : messages) {
 				sum += msg.getRank().get();
@@ -69,8 +69,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 
 		System.out.println("Rank = " + this.getValue().getRank().toString());
 
-		if (getSuperstepCount() > SETUP_STEPS) {
-			if (getSuperstepCount() < getMaxIteration() + SETUP_STEPS) {
+		if (getSuperstepCount() >= SETUP_STEPS) {
+			if (getSuperstepCount() < getMaxIteration()) {
 				sendNewRank();
 			} else {
 				voteToHalt();
