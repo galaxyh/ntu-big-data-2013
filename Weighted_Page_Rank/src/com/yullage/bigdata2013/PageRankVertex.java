@@ -86,17 +86,11 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	private void broadcastVertexId() throws IOException {
 		System.out.println("broadcast: " + getVertexID().toString());
 
-		for (Edge<Text, NullWritable> e : this.getEdges()) {
-			System.out.println("dst:" + e.getDestinationVertexID().toString());
-		}
+		System.out.println("senderId:" + getVertexID());
 
 		PageRankWritable msg = new PageRankWritable();
 		msg.setSenderId(getVertexID());
-
-		for (Edge<Text, NullWritable> edge : this.getEdges()) {
-			sendMessage(edge, msg);
-		}
-		// sendMessageToNeighbors(msg);
+		//sendMessageToNeighbors(msg);
 	}
 
 	/**
