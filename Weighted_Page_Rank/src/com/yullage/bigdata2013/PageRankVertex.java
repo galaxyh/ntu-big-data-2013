@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.Vertex;
 
 public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable> {
@@ -84,6 +85,10 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 */
 	private void broadcastVertexId() throws IOException {
 		System.out.println("broadcast: " + getVertexID().toString());
+
+		for (Edge<Text, NullWritable> e : this.getEdges()) {
+			System.out.println("dst:" + e.getDestinationVertexID().toString());
+		}
 
 		PageRankWritable msg = new PageRankWritable();
 		msg.setSenderId(getVertexID());
