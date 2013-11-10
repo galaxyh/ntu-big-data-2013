@@ -100,6 +100,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		// Receive vertex IDs from all sender.
 		List<Text> vertexIdList = new ArrayList<Text>();
 		for (PageRankWritable msg : messages) {
+			System.out.println("Id = " + getVertexID() + " Sender = " + msg.getSenderId());
 			vertexIdList.add(msg.getSenderId());
 		}
 
