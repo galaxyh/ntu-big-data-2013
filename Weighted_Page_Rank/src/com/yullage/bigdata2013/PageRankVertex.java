@@ -3,8 +3,10 @@ package com.yullage.bigdata2013;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
@@ -14,8 +16,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.Vertex;
 
-public class PageRankVertex extends
-		Vertex<Text, NullWritable, PageRankWritable> {
+public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable> {
 
 	public static double DAMPING_FACTOR = 0.85;
 	public static int SETUP_STEPS = 3;
@@ -23,8 +24,7 @@ public class PageRankVertex extends
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.apache.hama.graph.Vertex#setup(org.apache.hadoop.conf.Configuration)
+	 * @see org.apache.hama.graph.Vertex#setup(org.apache.hadoop.conf.Configuration)
 	 */
 	@Override
 	public void setup(Configuration conf) {
@@ -41,8 +41,7 @@ public class PageRankVertex extends
 	 */
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
-		System.out.println("Vertex = " + getVertexID() + "; Superstep = "
-				+ getSuperstepCount());
+		System.out.println("Vertex = " + getVertexID() + "; Superstep = " + getSuperstepCount());
 
 		if (this.getSuperstepCount() == 0) {
 			// initialize this vertex to 1/count of global vertices in this
@@ -88,8 +87,7 @@ public class PageRankVertex extends
 	}
 
 	/**
-	 * Broadcast this vertex ID for neighbors to calculate in and out edge
-	 * counts.
+	 * Broadcast this vertex ID for neighbors to calculate in and out edge counts.
 	 * 
 	 * @throws IOException
 	 */
@@ -105,8 +103,7 @@ public class PageRankVertex extends
 	 * @param messages
 	 * @throws IOException
 	 */
-	private void sendInOutEdgeCounts(Iterable<PageRankWritable> messages)
-			throws IOException {
+	private void sendInOutEdgeCounts(Iterable<PageRankWritable> messages) throws IOException {
 		// Receive vertex IDs from all sender.
 		List<Text> vertexIdList = new ArrayList<Text>();
 		for (PageRankWritable msg : messages) {
@@ -119,9 +116,8 @@ public class PageRankVertex extends
 		msg.setInEdgeCount(vertexIdList.size());
 		msg.setOutEdgeCount(getEdges().size());
 
-		System.out.println("Id = " + getVertexID() + "; In edge count = "
-				+ vertexIdList.size() + "; Out edge count = "
-				+ getEdges().size());
+		System.out.println("Id = " + getVertexID() + "; In edge count = " + vertexIdList.size() + "; Out edge count = "
+		        + getEdges().size());
 
 		for (Text id : vertexIdList) {
 			System.out.println("Send to = " + id);
@@ -133,26 +129,30 @@ public class PageRankVertex extends
 		long totalInCount = 0;
 		long totalOutCount = 0;
 
+		Map<Text, double[]> edgeCountMap = new HashMap<Text, double[]>();
 		for (PageRankWritable msg : messages) {
 			System.out.println("Sender ID = " + msg.getSenderId());
 			totalInCount += msg.getInEdgeCount().get();
 			totalOutCount += msg.getOutEdgeCount().get();
-		}
 
-		Map<Text, DoubleWritable> map = new HashMap<Text, DoubleWritable>();
-		for (PageRankWritable msg : messages) {
-			double weight = (msg.getInEdgeCount().get() / totalInCount)
-					* (msg.getOutEdgeCount().get() / totalOutCount);
-			map.put(msg.getSenderId(), new DoubleWritable(weight));
-			System.out.println("Sender = " + msg.getSenderId() + "; Weight = "
-					+ weight);
+			double[] edgeCounts = new double[2];
+			edgeCounts[0] = msg.getInEdgeCount().get();
+			edgeCounts[1] = msg.getOutEdgeCount().get();
+			edgeCountMap.put(msg.getSenderId(), edgeCounts);
 		}
 
 		MapWritable weightMap = new MapWritable();
-		weightMap.putAll(map);
+		for (Entry<Text, double[]> entry : edgeCountMap.entrySet()) {
+			Text key = entry.getKey();
+			double[] value = entry.getValue();
+
+			double weight = (value[0] / totalInCount) * (value[1] / totalOutCount);
+			weightMap.put(key, new DoubleWritable(weight));
+			System.out.println("Sender = " + key + "; Weight = " + weight);
+		}
+
 		getValue().setWeightMap(weightMap);
-		System.out.println("Map Keys: "
-				+ getValue().getWeightMap().keySet().size());
+		System.out.println("Map Keys: " + getValue().getWeightMap().keySet().size());
 	}
 
 	/**
@@ -164,8 +164,7 @@ public class PageRankVertex extends
 		for (Edge<Text, NullWritable> edge : getEdges()) {
 			System.out.println("Dest ID = " + edge.getDestinationVertexID());
 			double thisRank = getValue().getRank().get();
-			double destWeight = getValue().getWeight(
-					edge.getDestinationVertexID()).get();
+			double destWeight = getValue().getWeight(edge.getDestinationVertexID()).get();
 
 			double outRank = thisRank * destWeight;
 			PageRankWritable msg = new PageRankWritable();
