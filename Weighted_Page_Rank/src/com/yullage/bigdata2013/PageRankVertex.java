@@ -126,18 +126,20 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	}
 
 	private void calculateWeight(Iterable<PageRankWritable> messages) {
-		long totalInCount = 0;
-		long totalOutCount = 0;
+		double totalInCount = 0;
+		double totalOutCount = 0;
 
 		Map<Text, double[]> edgeCountMap = new HashMap<Text, double[]>();
 		for (PageRankWritable msg : messages) {
 			System.out.println("Sender ID = " + msg.getSenderId());
 			totalInCount += msg.getInEdgeCount().get();
 			totalOutCount += msg.getOutEdgeCount().get();
+			System.out.println("total in = " + totalInCount + "; total out = " + totalOutCount);
 
 			double[] edgeCounts = new double[2];
 			edgeCounts[0] = msg.getInEdgeCount().get();
 			edgeCounts[1] = msg.getOutEdgeCount().get();
+			System.out.println("in = " + edgeCounts[0] + "; out = " + edgeCounts[1]);
 			edgeCountMap.put(msg.getSenderId(), edgeCounts);
 		}
 
@@ -145,7 +147,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		for (Entry<Text, double[]> entry : edgeCountMap.entrySet()) {
 			Text key = entry.getKey();
 			double[] value = entry.getValue();
-
+			System.out.println("value in = " + value[0] + "; value out = " + value[1]);
 			double weight = (value[0] / totalInCount) * (value[1] / totalOutCount);
 			weightMap.put(key, new DoubleWritable(weight));
 			System.out.println("Sender = " + key + "; Weight = " + weight);
