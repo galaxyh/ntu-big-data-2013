@@ -11,6 +11,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.Vertex;
 
 public class PageRankVertex extends
@@ -64,7 +65,7 @@ public class PageRankVertex extends
 			calculateWeight(messages);
 			return;
 
-		} else if (getSuperstepCount() > 3) {
+		} else if (getSuperstepCount() > SETUP_STEPS) {
 			double sum = 0;
 			for (PageRankWritable msg : messages) {
 				sum += msg.getRank().get();
@@ -153,10 +154,16 @@ public class PageRankVertex extends
 	 * @throws IOException
 	 */
 	private void sendNewRank() throws IOException {
-		double outRank = this.getValue().getRank().get() / getEdges().size();
-		PageRankWritable msg = new PageRankWritable();
-		msg.setRank(outRank);
-		sendMessageToNeighbors(msg);
+		for (Edge<Text, NullWritable> edge : getEdges()) {
+			double thisRank = getValue().getRank().get();
+			double destWeight = getValue().getWeight(
+					edge.getDestinationVertexID()).get();
+
+			double outRank = thisRank * destWeight;
+			PageRankWritable msg = new PageRankWritable();
+			msg.setRank(outRank);
+			sendMessage(edge, msg);
+		}
 	}
 
 }
