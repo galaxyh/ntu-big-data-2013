@@ -13,7 +13,8 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hama.graph.Vertex;
 
-public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable> {
+public class PageRankVertex extends
+		Vertex<Text, NullWritable, PageRankWritable> {
 
 	public static double DAMPING_FACTOR = 0.85;
 	public static int SETUP_STEPS = 3;
@@ -21,7 +22,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.apache.hama.graph.Vertex#setup(org.apache.hadoop.conf.Configuration)
+	 * @see
+	 * org.apache.hama.graph.Vertex#setup(org.apache.hadoop.conf.Configuration)
 	 */
 	@Override
 	public void setup(Configuration conf) {
@@ -38,22 +40,27 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 */
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
-		System.out.println("Vertex = " + getVertexID() + "; Superstep = " + getSuperstepCount());
+		System.out.println("Vertex = " + getVertexID() + "; Superstep = "
+				+ getSuperstepCount());
 
 		if (this.getSuperstepCount() == 0) {
-			// initialize this vertex to 1/count of global vertices in this graph.
+			// initialize this vertex to 1/count of global vertices in this
+			// graph.
 			PageRankWritable vertexContent = new PageRankWritable();
-			vertexContent.setRank(1.0/* / this.getNumVertices()*/);
+			vertexContent.setRank(1.0 / this.getNumVertices());
 			this.setValue(vertexContent);
 
-			// Broadcast this vertex ID for neighbors to calculate in and out edge counts.
+			// Broadcast this vertex ID for neighbors to calculate in and out
+			// edge counts.
 			broadcastVertexId();
 
 		} else if (getSuperstepCount() == 1) {
-			// Calculate in and out edge counts. Then send these information back to senders.
+			// Calculate in and out edge counts. Then send these information
+			// back to senders.
 			sendInOutEdgeCounts(messages);
 		} else if (getSuperstepCount() == 2) {
-			// Calculate weight for each neighbor and then continue to next super step.
+			// Calculate weight for each neighbor and then continue to next
+			// super step.
 			calculateWeight(messages);
 			return;
 
@@ -80,7 +87,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	}
 
 	/**
-	 * Broadcast this vertex ID for neighbors to calculate in and out edge counts.
+	 * Broadcast this vertex ID for neighbors to calculate in and out edge
+	 * counts.
 	 * 
 	 * @throws IOException
 	 */
@@ -96,7 +104,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 * @param messages
 	 * @throws IOException
 	 */
-	private void sendInOutEdgeCounts(Iterable<PageRankWritable> messages) throws IOException {
+	private void sendInOutEdgeCounts(Iterable<PageRankWritable> messages)
+			throws IOException {
 		// Receive vertex IDs from all sender.
 		List<Text> vertexIdList = new ArrayList<Text>();
 		for (PageRankWritable msg : messages) {
@@ -109,8 +118,9 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		msg.setInEdgeCount(vertexIdList.size());
 		msg.setOutEdgeCount(getEdges().size());
 
-		System.out.println("Id = " + getVertexID() + "; In edge count = " + vertexIdList.size() + "; Out edge count = "
-		        + getEdges().size());
+		System.out.println("Id = " + getVertexID() + "; In edge count = "
+				+ vertexIdList.size() + "; Out edge count = "
+				+ getEdges().size());
 
 		for (Text id : vertexIdList) {
 			sendMessage(id, msg);
@@ -127,7 +137,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 
 		Map<Text, DoubleWritable> map = new HashMap<Text, DoubleWritable>();
 		for (PageRankWritable msg : messages) {
-			double weight = (msg.getInEdgeCount().get() / totalInCount) * (msg.getOutEdgeCount().get() / totalOutCount);
+			double weight = (msg.getInEdgeCount().get() / totalInCount)
+					* (msg.getOutEdgeCount().get() / totalOutCount);
 			map.put(msg.getSenderId(), new DoubleWritable(weight));
 		}
 
