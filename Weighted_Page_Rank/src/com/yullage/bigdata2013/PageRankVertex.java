@@ -132,7 +132,9 @@ public class PageRankVertex extends
 	private void calculateWeight(Iterable<PageRankWritable> messages) {
 		long totalInCount = 0;
 		long totalOutCount = 0;
+
 		for (PageRankWritable msg : messages) {
+			System.out.println("Sender ID = " + msg.getSenderId());
 			totalInCount += msg.getInEdgeCount().get();
 			totalOutCount += msg.getOutEdgeCount().get();
 		}
