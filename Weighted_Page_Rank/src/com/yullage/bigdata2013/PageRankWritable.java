@@ -71,14 +71,14 @@ public class PageRankWritable extends MapWritable {
 	 * @param inEdgeCount
 	 */
 	public void setInEdgeCount(LongWritable inEdgeCount) {
-		getOutEdgeCount().set(inEdgeCount.get());
+		getInEdgeCount().set(inEdgeCount.get());
 	}
 
 	/**
 	 * @param inEdgeCount
 	 */
 	public void setInEdgeCount(long inEdgeCount) {
-		getOutEdgeCount().set(inEdgeCount);
+		getInEdgeCount().set(inEdgeCount);
 	}
 
 	/**
