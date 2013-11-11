@@ -124,6 +124,7 @@ public class PageRankVertex extends
 				+ getEdges().size());
 
 		for (Text id : vertexIdList) {
+			System.out.println("Send to = " + id);
 			sendMessage(id, msg);
 		}
 	}
