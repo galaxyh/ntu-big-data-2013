@@ -80,7 +80,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 				// Send out new page rank to all neighbors.
 				sendNewRank();
 			} else {
-				System.out.println("Vertex ¡× " + getVertexID() + "; Rank = " + getValue().getRank());
+				System.out.println("Vertex = " + getVertexID() + "; Rank = " + getValue().getRank());
 				voteToHalt();
 			}
 		}
