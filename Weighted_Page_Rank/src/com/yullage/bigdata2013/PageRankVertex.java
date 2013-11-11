@@ -43,7 +43,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		if (this.getSuperstepCount() == 0) {
 			// initialize this vertex to 1/count of global vertices in this graph.
 			PageRankWritable vertexContent = new PageRankWritable();
-			vertexContent.setRank(1.0 / this.getNumVertices());
+			vertexContent.setRank(1.0/* / this.getNumVertices()*/);
 			this.setValue(vertexContent);
 
 			// Broadcast this vertex ID for neighbors to calculate in and out edge counts.
