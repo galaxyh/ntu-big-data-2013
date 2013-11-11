@@ -3,7 +3,6 @@ package com.yullage.bigdata2013;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,30 +40,32 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 */
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
-		System.out.println("Vertex = " + getVertexID() + "; Superstep = " + getSuperstepCount());
-
 		if (this.getSuperstepCount() == 0) {
-			// initialize this vertex to 1/count of global vertices in this
-			// graph.
+			// initialize this vertex to 1/count of global vertices
+			// in this graph.
 			PageRankWritable vertexContent = new PageRankWritable();
 			vertexContent.setRank(1.0 / this.getNumVertices());
 			this.setValue(vertexContent);
 
-			// Broadcast this vertex ID for neighbors to calculate in and out
-			// edge counts.
+			// Broadcast this vertex ID for neighbors
+			// to calculate in and out edge counts.
 			broadcastVertexId();
+			return;
 
 		} else if (getSuperstepCount() == 1) {
-			// Calculate in and out edge counts. Then send these information
-			// back to senders.
+			// Calculate in and out edge counts.
+			// Then send these information back to senders.
 			sendInOutEdgeCounts(messages);
+			return;
+
 		} else if (getSuperstepCount() == 2) {
-			// Calculate weight for each neighbor and then continue to next
-			// super step.
+			// Calculate weight for each neighbor and
+			// then continue to next super step.
 			calculateWeight(messages);
 			return;
 
 		} else if (getSuperstepCount() > SETUP_STEPS) {
+			// Calculate page rank.
 			double sum = 0;
 			for (PageRankWritable msg : messages) {
 				sum += msg.getRank().get();
@@ -74,14 +75,13 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 			this.getValue().setRank(alpha + (sum * DAMPING_FACTOR));
 		}
 
-		System.out.println("Rank = " + this.getValue().getRank().toString());
-
 		if (getSuperstepCount() >= SETUP_STEPS) {
 			if (getSuperstepCount() < getMaxIteration()) {
+				// Send out new page rank to all neighbors.
 				sendNewRank();
 			} else {
+				System.out.println("Vertex ¡× " + getVertexID() + "; Rank = " + getValue().getRank());
 				voteToHalt();
-				return;
 			}
 		}
 	}
@@ -116,45 +116,44 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		msg.setInEdgeCount(vertexIdList.size());
 		msg.setOutEdgeCount(getEdges().size());
 
-		System.out.println("Id = " + getVertexID() + "; In edge count = " + vertexIdList.size() + "; Out edge count = "
-		        + getEdges().size());
-
 		for (Text id : vertexIdList) {
-			System.out.println("Send to = " + id);
 			sendMessage(id, msg);
 		}
 	}
 
+	/**
+	 * Calculate weight for each destination vertex.
+	 * 
+	 * @param messages
+	 */
 	private void calculateWeight(Iterable<PageRankWritable> messages) {
 		long totalInCount = 0;
 		long totalOutCount = 0;
 
+		// Because iterator can not go back to the first record,
+		// so we need to new another Map to store the in/out edge counts.
 		Map<Text, long[]> edgeCountMap = new HashMap<Text, long[]>();
 		for (PageRankWritable msg : messages) {
-			System.out.println("Sender ID = " + msg.getSenderId());
 			totalInCount += msg.getInEdgeCount().get();
 			totalOutCount += msg.getOutEdgeCount().get();
-			System.out.println("total in = " + totalInCount + "; total out = " + totalOutCount);
 
+			// Store edge counts.
 			long[] edgeCounts = new long[2];
 			edgeCounts[0] = msg.getInEdgeCount().get();
 			edgeCounts[1] = msg.getOutEdgeCount().get();
-			System.out.println("in = " + edgeCounts[0] + "; out = " + edgeCounts[1]);
 			edgeCountMap.put(msg.getSenderId(), edgeCounts);
 		}
 
+		// Calculate weight for each destination vertex.
 		MapWritable weightMap = new MapWritable();
 		for (Entry<Text, long[]> entry : edgeCountMap.entrySet()) {
 			Text key = entry.getKey();
 			long[] value = entry.getValue();
-			System.out.println("value in = " + value[0] + "; value out = " + value[1]);
 			double weight = (value[0] / (double) totalInCount) * (value[1] / (double) totalOutCount);
 			weightMap.put(key, new DoubleWritable(weight));
-			System.out.println("Sender = " + key + "; Weight = " + weight);
 		}
 
 		getValue().setWeightMap(weightMap);
-		System.out.println("Map Keys: " + getValue().getWeightMap().keySet().size());
 	}
 
 	/**
@@ -164,7 +163,6 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 */
 	private void sendNewRank() throws IOException {
 		for (Edge<Text, NullWritable> edge : getEdges()) {
-			System.out.println("Dest ID = " + edge.getDestinationVertexID());
 			double thisRank = getValue().getRank().get();
 			double destWeight = getValue().getWeight(edge.getDestinationVertexID()).get();
 
