@@ -63,7 +63,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 				sum += msg.getRank().get();
 			}
 
-			double alpha = (1.0d - DAMPING_FACTOR) / this.getNumVertices();
+			double alpha = 1.0d - DAMPING_FACTOR;
 			this.getValue().setRank(alpha + (sum * DAMPING_FACTOR));
 		}
 
