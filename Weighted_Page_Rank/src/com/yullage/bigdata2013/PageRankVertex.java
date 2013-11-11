@@ -141,11 +141,15 @@ public class PageRankVertex extends
 			double weight = (msg.getInEdgeCount().get() / totalInCount)
 					* (msg.getOutEdgeCount().get() / totalOutCount);
 			map.put(msg.getSenderId(), new DoubleWritable(weight));
+			System.out.println("Sender = " + msg.getSenderId() + "; Weight = "
+					+ weight);
 		}
 
 		MapWritable weightMap = new MapWritable();
 		weightMap.putAll(map);
-		this.getValue().setWeightMap(weightMap);
+		getValue().setWeightMap(weightMap);
+		System.out.println("Map Keys: "
+				+ getValue().getWeightMap().keySet().size());
 	}
 
 	/**
@@ -155,6 +159,7 @@ public class PageRankVertex extends
 	 */
 	private void sendNewRank() throws IOException {
 		for (Edge<Text, NullWritable> edge : getEdges()) {
+			System.out.println("Dest ID = " + edge.getDestinationVertexID());
 			double thisRank = getValue().getRank().get();
 			double destWeight = getValue().getWeight(
 					edge.getDestinationVertexID()).get();
