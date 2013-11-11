@@ -57,7 +57,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 			calculateWeight(messages);
 			return;
 
-		} else if (getSuperstepCount() >= 3) {
+		} else if (getSuperstepCount() > 3) {
 			double sum = 0;
 			for (PageRankWritable msg : messages) {
 				sum += msg.getRank().get();
