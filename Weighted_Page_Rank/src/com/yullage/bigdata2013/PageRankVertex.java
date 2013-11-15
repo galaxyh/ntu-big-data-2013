@@ -15,6 +15,10 @@ import org.apache.hadoop.io.Text;
 import org.apache.hama.graph.Edge;
 import org.apache.hama.graph.Vertex;
 
+/**
+ * @author Yu-chun Huang
+ * @version 1.0b
+ */
 public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable> {
 
 	public static double DAMPING_FACTOR = 0.85;

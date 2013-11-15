@@ -7,7 +7,7 @@ import org.apache.hadoop.io.Text;
 
 /**
  * @author Yu-chun Huang
- * 
+ * @version 1.0b
  */
 public class PageRankWritable extends MapWritable {
 	private static final Text KEY_RANK = new Text("__KEY_RANK");
