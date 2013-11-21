@@ -168,7 +168,15 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	private void sendNewRank() throws IOException {
 		for (Edge<Text, NullWritable> edge : getEdges()) {
 			double thisRank = getValue().getRank().get();
-			double destWeight = getValue().getWeight(edge.getDestinationVertexID()).get();
+
+			double destWeight = 0;
+			try {
+				destWeight = getValue().getWeight(edge.getDestinationVertexID()).get();
+			} catch (Exception e) {
+				System.out.println("[ WARNING !!! ] Cant's find the weight for vertex ID = "
+				        + edge.getDestinationVertexID());
+				continue;
+			}
 
 			double outRank = thisRank * destWeight;
 			PageRankWritable msg = new PageRankWritable();
