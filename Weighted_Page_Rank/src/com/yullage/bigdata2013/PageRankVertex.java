@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hama.graph.Edge;
@@ -19,23 +16,8 @@ import org.apache.hama.graph.Vertex;
  * @author Yu-chun Huang
  * @version 1.0b
  */
-public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable> {
-
-	public static double DAMPING_FACTOR = 0.85;
-	public static int SETUP_STEPS = 3;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.hama.graph.Vertex#setup(org.apache.hadoop.conf.Configuration)
-	 */
-	@Override
-	public void setup(Configuration conf) {
-		String val = conf.get("hama.pagerank.alpha");
-		if (val != null) {
-			DAMPING_FACTOR = Double.parseDouble(val);
-		}
-	}
+public class PageRankVertex extends
+		Vertex<Text, NullWritable, PageRankWritable> {
 
 	/*
 	 * (non-Javadoc)
@@ -44,6 +26,7 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 */
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
+		System.out.println("aaaaa");
 		if (this.getSuperstepCount() == 0) {
 			// initialize this vertex to 1/count of global vertices
 			// in this graph.
@@ -68,30 +51,32 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 			calculateWeight(messages);
 			return;
 
-		} else if (getSuperstepCount() > SETUP_STEPS) {
+		} else if (getSuperstepCount() > 3) {
 			// Calculate page rank.
 			double sum = 0;
 			for (PageRankWritable msg : messages) {
 				sum += msg.getRank().get();
 			}
 
-			double alpha = 1.0d - DAMPING_FACTOR;
-			this.getValue().setRank(alpha + (sum * DAMPING_FACTOR));
+			double alpha = 1.0d - 0.85;
+			this.getValue().setRank(alpha + (sum * 0.85d));
 		}
 
-		if (getSuperstepCount() >= SETUP_STEPS) {
+		if (getSuperstepCount() >= 3) {
 			if (getSuperstepCount() < getMaxIteration()) {
 				// Send out new page rank to all neighbors.
 				sendNewRank();
 			} else {
-				System.out.println("Vertex = " + getVertexID() + "; Rank = " + getValue().getRank());
+				System.out.println("Vertex = " + getVertexID() + "; Rank = "
+						+ getValue().getRank());
 				voteToHalt();
 			}
 		}
 	}
 
 	/**
-	 * Broadcast this vertex ID for neighbors to calculate in and out edge counts.
+	 * Broadcast this vertex ID for neighbors to calculate in and out edge
+	 * counts.
 	 * 
 	 * @throws IOException
 	 */
@@ -107,7 +92,8 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 	 * @param messages
 	 * @throws IOException
 	 */
-	private void sendInOutEdgeCounts(Iterable<PageRankWritable> messages) throws IOException {
+	private void sendInOutEdgeCounts(Iterable<PageRankWritable> messages)
+			throws IOException {
 		// Receive vertex IDs from all sender.
 		List<Text> vertexIdList = new ArrayList<Text>();
 		for (PageRankWritable msg : messages) {
@@ -149,12 +135,14 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 		}
 
 		// Calculate weight for each destination vertex.
-		MapWritable weightMap = new MapWritable();
+		Map<String, Double> weightMap = new HashMap<String, Double>();
+		// MapWritable weightMap = new MapWritable();
 		for (Entry<Text, long[]> entry : edgeCountMap.entrySet()) {
 			Text key = entry.getKey();
 			long[] value = entry.getValue();
-			double weight = (value[0] / (double) totalInCount) * (value[1] / (double) totalOutCount);
-			weightMap.put(key, new DoubleWritable(weight));
+			double weight = (value[0] / (double) totalInCount)
+					* (value[1] / (double) totalOutCount);
+			weightMap.put(key.toString(), new Double(weight));
 		}
 
 		getValue().setWeightMap(weightMap);
@@ -171,10 +159,13 @@ public class PageRankVertex extends Vertex<Text, NullWritable, PageRankWritable>
 
 			double destWeight = 0;
 			try {
-				destWeight = getValue().getWeight(edge.getDestinationVertexID()).get();
+				Map<String, Double> weightMap = getValue().getWeightMap();
+				destWeight = weightMap.get(edge.getDestinationVertexID()
+						.toString());
 			} catch (Exception e) {
-				System.out.println("[ WARNING !!! ] Cant's find the weight for vertex ID = "
-				        + edge.getDestinationVertexID());
+				System.out
+						.println("[ WARNING !!! ] Cant's find the weight for vertex ID = "
+								+ edge.getDestinationVertexID());
 				continue;
 			}
 

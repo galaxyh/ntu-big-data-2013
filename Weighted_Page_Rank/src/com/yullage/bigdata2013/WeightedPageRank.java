@@ -25,7 +25,7 @@ public class WeightedPageRank {
 		graphJob.setOutputPath(new Path(args[2]));
 
 		// set the defaults
-		graphJob.setMaxIteration(Integer.parseInt(args[0]) + PageRankVertex.SETUP_STEPS);
+		graphJob.setMaxIteration(Integer.parseInt(args[0]) + 3);
 		graphJob.set("hama.pagerank.alpha", "0.85");
 
 		// Vertex reader

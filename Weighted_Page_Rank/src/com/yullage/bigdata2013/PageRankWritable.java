@@ -1,145 +1,128 @@
 package com.yullage.bigdata2013;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 
 /**
  * @author Yu-chun Huang
  * @version 1.0b
  */
-public class PageRankWritable extends MapWritable {
-	private static final Text KEY_RANK = new Text("__KEY_RANK");
-	private static final Text KEY_SENDER_VERTEX_ID = new Text("__KEY_SENDER_VERTEX_ID");
-	private static final Text KEY_IN_EDGE_COUNT = new Text("__KEY_IN_VERTEX_COUNT");
-	private static final Text KEY_OUT_EDGE_COUNT = new Text("__KEY_OUT_VERTEX_COUNT");
-	private static final Text KEY_WEIGHT = new Text("__KEY_WEIGHT");
+public class PageRankWritable implements Writable {
+	private DoubleWritable rank = new DoubleWritable();
+	private Text senderVertexId = new Text();
+	private LongWritable inEdgeCount = new LongWritable();
+	private LongWritable outEdgeCount = new LongWritable();
+	private Text weightMap = new Text();
 
 	/**
 	 * @return Rank
 	 */
 	public DoubleWritable getRank() {
-		if (!this.containsKey(KEY_RANK)) {
-			this.put(KEY_RANK, new DoubleWritable());
-		}
-		return (DoubleWritable) this.get(KEY_RANK);
+		return this.rank;
 	}
 
 	/**
 	 * @param rank
 	 */
 	public void setRank(DoubleWritable rank) {
-		getRank().set(rank.get());
+		this.rank = rank;
 	}
 
 	/**
 	 * @param rank
 	 */
 	public void setRank(double rank) {
-		getRank().set(rank);
+		this.rank.set(rank);
 	}
 
 	/**
 	 * @return Sender vertex ID
 	 */
 	public Text getSenderId() {
-		if (!this.containsKey(KEY_SENDER_VERTEX_ID)) {
-			this.put(KEY_SENDER_VERTEX_ID, new Text());
-		}
-		return (Text) this.get(KEY_SENDER_VERTEX_ID);
+		return this.senderVertexId;
 	}
 
 	/**
 	 * @param vertexId
 	 */
 	public void setSenderId(Text vertexId) {
-		getSenderId().set(vertexId);
+		this.senderVertexId = vertexId;
 	}
 
 	/**
 	 * @return Incoming edge count
 	 */
 	public LongWritable getInEdgeCount() {
-		if (!this.containsKey(KEY_IN_EDGE_COUNT)) {
-			this.put(KEY_IN_EDGE_COUNT, new LongWritable());
-		}
-		return (LongWritable) this.get(KEY_IN_EDGE_COUNT);
+		return this.inEdgeCount;
 	}
 
 	/**
 	 * @param inEdgeCount
 	 */
 	public void setInEdgeCount(LongWritable inEdgeCount) {
-		getInEdgeCount().set(inEdgeCount.get());
+		this.inEdgeCount = inEdgeCount;
 	}
 
 	/**
 	 * @param inEdgeCount
 	 */
 	public void setInEdgeCount(long inEdgeCount) {
-		getInEdgeCount().set(inEdgeCount);
+		this.inEdgeCount.set(inEdgeCount);
 	}
 
 	/**
 	 * @return Outgoing edge count
 	 */
 	public LongWritable getOutEdgeCount() {
-		if (!this.containsKey(KEY_OUT_EDGE_COUNT)) {
-			this.put(KEY_OUT_EDGE_COUNT, new LongWritable());
-		}
-		return (LongWritable) this.get(KEY_OUT_EDGE_COUNT);
+		return this.outEdgeCount;
 	}
 
 	/**
 	 * @param outEdgeCount
 	 */
 	public void setOutEdgeCount(LongWritable outEdgeCount) {
-		getOutEdgeCount().set(outEdgeCount.get());
+		this.outEdgeCount = outEdgeCount;
 	}
 
 	/**
 	 * @param outEdgeCount
 	 */
 	public void setOutEdgeCount(long outEdgeCount) {
-		getOutEdgeCount().set(outEdgeCount);
+		this.outEdgeCount.set(outEdgeCount);
 	}
 
 	/**
 	 * @return Map of weight values for each neighbor
 	 */
-	public MapWritable getWeightMap() {
-		if (!this.containsKey(KEY_WEIGHT)) {
-			this.put(KEY_WEIGHT, new MapWritable());
+	public Map<String, Double> getWeightMap() {
+		Map<String, Double> out = new HashMap<String, Double>();
+		String[] tokens = weightMap.toString().split(" ");
+		for (String token : tokens) {
+			String[] keyValue = token.split("|");
+			out.put(keyValue[0], Double.parseDouble(keyValue[1]));
 		}
-		return (MapWritable) this.get(KEY_WEIGHT);
+		return out;
 	}
 
 	/**
 	 * @param weightMap
 	 */
-	public void setWeightMap(MapWritable weightMap) {
-		getWeightMap().putAll(weightMap);
-	}
-
-	/**
-	 * @param vertexId
-	 * @return Weight values of the specified neighbor
-	 */
-	public DoubleWritable getWeight(Text vertexId) {
-		if (getWeightMap().containsKey(vertexId)) {
-			return (DoubleWritable) getWeightMap().get(vertexId);
-		} else {
-			return null;
+	public void setWeightMap(Map<String, Double> weightMap) {
+		String serialMap = "";
+		for (Map.Entry<String, Double> entry : weightMap.entrySet()) {
+			serialMap = serialMap + entry.getKey() + "|"
+					+ entry.getValue().doubleValue() + " ";
 		}
-	}
 
-	/**
-	 * @param vertexId
-	 * @param weight
-	 */
-	public void setWeight(Text vertexId, DoubleWritable weight) {
-		getWeightMap().put(vertexId, weight);
+		this.weightMap = new Text(serialMap.trim());
 	}
 
 	/*
@@ -149,6 +132,24 @@ public class PageRankWritable extends MapWritable {
 	 */
 	@Override
 	public String toString() {
-		return getRank().toString();
+		return this.rank.toString();
+	}
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		rank.readFields(in);
+		senderVertexId.readFields(in);
+		inEdgeCount.readFields(in);
+		outEdgeCount.readFields(in);
+		weightMap.readFields(in);
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		rank.write(out);
+		senderVertexId.write(out);
+		inEdgeCount.write(out);
+		outEdgeCount.write(out);
+		weightMap.write(out);
 	}
 }
