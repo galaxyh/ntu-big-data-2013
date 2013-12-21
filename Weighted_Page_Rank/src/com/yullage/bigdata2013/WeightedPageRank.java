@@ -32,7 +32,7 @@ public class WeightedPageRank {
 		graphJob.setVertexInputReaderClass(PageRankDataReader.class);
 
 		graphJob.setVertexIDClass(Text.class);
-		graphJob.setVertexValueClass(DoubleWritable.class);
+		graphJob.setVertexValueClass(PageRankWritable.class);
 		graphJob.setEdgeValueClass(NullWritable.class);
 
 		graphJob.setInputFormat(TextInputFormat.class);

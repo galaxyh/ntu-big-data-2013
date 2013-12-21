@@ -3,11 +3,10 @@ package com.yullage.bigdata2013;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
@@ -20,7 +19,7 @@ public class PageRankWritable implements Writable {
 	private Text senderVertexId = new Text();
 	private LongWritable inEdgeCount = new LongWritable();
 	private LongWritable outEdgeCount = new LongWritable();
-	private Text weightMap = new Text();
+	private MapWritable weightMap = new MapWritable();
 
 	/**
 	 * @return Rank
@@ -102,27 +101,27 @@ public class PageRankWritable implements Writable {
 	/**
 	 * @return Map of weight values for each neighbor
 	 */
-	public Map<String, Double> getWeightMap() {
-		Map<String, Double> out = new HashMap<String, Double>();
-		String[] tokens = weightMap.toString().split(" ");
-		for (String token : tokens) {
-			String[] keyValue = token.split("|");
-			out.put(keyValue[0], Double.parseDouble(keyValue[1]));
-		}
-		return out;
+	public MapWritable getWeightMap() {
+		return this.weightMap;
 	}
 
 	/**
 	 * @param weightMap
 	 */
-	public void setWeightMap(Map<String, Double> weightMap) {
-		String serialMap = "";
-		for (Map.Entry<String, Double> entry : weightMap.entrySet()) {
-			serialMap = serialMap + entry.getKey() + "|"
-					+ entry.getValue().doubleValue() + " ";
-		}
+	public void setWeightMap(MapWritable weightMap) {
+		this.weightMap = weightMap;
+	}
 
-		this.weightMap = new Text(serialMap.trim());
+	/**
+	 * @param vertexId
+	 * @return Weight values of the specified neighbor
+	 */
+	public DoubleWritable getWeight(Text vertexId) {
+		if (getWeightMap().containsKey(vertexId)) {
+			return (DoubleWritable) getWeightMap().get(vertexId);
+		} else {
+			return null;
+		}
 	}
 
 	/*

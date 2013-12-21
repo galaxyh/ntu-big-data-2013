@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hama.graph.Edge;
@@ -26,14 +28,13 @@ public class PageRankVertex extends
 	 */
 	@Override
 	public void compute(Iterable<PageRankWritable> messages) throws IOException {
-		System.out.println("aaaaa");
+
 		if (this.getSuperstepCount() == 0) {
 			// initialize this vertex to 1/count of global vertices
 			// in this graph.
 			PageRankWritable vertexContent = new PageRankWritable();
 			vertexContent.setRank(1.0 / this.getNumVertices());
 			this.setValue(vertexContent);
-
 			// Broadcast this vertex ID for neighbors
 			// to calculate in and out edge counts.
 			broadcastVertexId();
@@ -135,14 +136,13 @@ public class PageRankVertex extends
 		}
 
 		// Calculate weight for each destination vertex.
-		Map<String, Double> weightMap = new HashMap<String, Double>();
-		// MapWritable weightMap = new MapWritable();
+		MapWritable weightMap = new MapWritable();
 		for (Entry<Text, long[]> entry : edgeCountMap.entrySet()) {
 			Text key = entry.getKey();
 			long[] value = entry.getValue();
 			double weight = (value[0] / (double) totalInCount)
 					* (value[1] / (double) totalOutCount);
-			weightMap.put(key.toString(), new Double(weight));
+			weightMap.put(key, new DoubleWritable(weight));
 		}
 
 		getValue().setWeightMap(weightMap);
@@ -156,20 +156,20 @@ public class PageRankVertex extends
 	private void sendNewRank() throws IOException {
 		for (Edge<Text, NullWritable> edge : getEdges()) {
 			double thisRank = getValue().getRank().get();
-
 			double destWeight = 0;
 			try {
-				Map<String, Double> weightMap = getValue().getWeightMap();
-				destWeight = weightMap.get(edge.getDestinationVertexID()
-						.toString());
+				destWeight = getValue()
+						.getWeight(edge.getDestinationVertexID()).get();
 			} catch (Exception e) {
-				System.out
+				System.err
 						.println("[ WARNING !!! ] Cant's find the weight for vertex ID = "
 								+ edge.getDestinationVertexID());
 				continue;
 			}
 
 			double outRank = thisRank * destWeight;
+			System.err
+					.println("ST" + getSuperstepCount() + "SNR OR:" + outRank);
 			PageRankWritable msg = new PageRankWritable();
 			msg.setRank(outRank);
 			sendMessage(edge, msg);
