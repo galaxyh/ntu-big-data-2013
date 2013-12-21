@@ -168,8 +168,6 @@ public class PageRankVertex extends
 			}
 
 			double outRank = thisRank * destWeight;
-			System.err
-					.println("ST" + getSuperstepCount() + "SNR OR:" + outRank);
 			PageRankWritable msg = new PageRankWritable();
 			msg.setRank(outRank);
 			sendMessage(edge, msg);
